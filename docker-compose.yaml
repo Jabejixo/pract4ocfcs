@@ -1,0 +1,45 @@
+services:
+  # Сервис для API
+  api:
+    restart: always  # Автоматический перезапуск контейнера при сбое
+    container_name: api  # Имя контейнера
+    build: ./api  # Сборка контейнера из директории ./api
+    ports:
+      - "5050:5000"  # Проброс портов: 5050 внутри контейнера на 5050 хоста
+    depends_on:
+      - mysql  # Зависимость от сервиса MySQL, запуск после него
+
+  # Сервис для фронтенда
+  frontend:
+    restart: always
+    container_name: frontend
+    build: ./frontend  # Сборка контейнера из директории ./frontend
+    ports:
+      - "6060:8594"  # Проброс порта 6060
+    depends_on:
+      - mysql  # Зависимость от сервиса MySQL, запуск после него
+
+  # Сервис для базы данных MySQL
+  mysql:
+    restart: always
+    container_name: mysql
+    image: mysql  # Использование официального образа MySQL
+    environment:  # Настройка переменных окружения для MySQL
+      MYSQL_ROOT_PASSWORD: password  # Пароль для пользователя root
+      MYSQL_DATABASE: time_db  # Имя создаваемой базы данных
+    volumes:
+      - mysql_data:/var/lib/mysql  # Хранение данных MySQL в volume
+
+  # Сервис для управления базой данных через Adminer
+  adminer:
+    restart: always
+    container_name: adminer
+    image: adminer  # Использование официального образа Adminer
+    ports:
+      - "8122:8080"  # Проброс порта 8080 на 8122 хоста
+    depends_on:
+      - mysql  # Зависимость от сервиса MySQL, запуск после него
+
+# Определение volume для хранения данных MySQL
+volumes:
+  mysql_data:
